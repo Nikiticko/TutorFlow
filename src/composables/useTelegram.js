@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 
-// Browser preview remains available; launch context is not authentication.
+// Theme/navigation integration only; authentication is verified by the backend.
 export function useTelegram({ canGoBack, onBack }) {
   const app = window.Telegram?.WebApp
   const isTelegram = Boolean(app && app.platform !== 'unknown')
