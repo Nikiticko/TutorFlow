@@ -22,8 +22,8 @@ function reply(res, status, data) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' })
   res.end(JSON.stringify(data))
 }
-export function createApp(pool, { botToken = process.env.BOT_TOKEN, origin = process.env.APP_ORIGIN || 'http://localhost:5173', devAuth = process.env.DEV_AUTH === '1' && process.env.NODE_ENV !== 'production', getRate = exchangeRate } = {}) {
-  return createServer(async (req, res) => {
+export function createHandler(pool, { botToken = process.env.BOT_TOKEN, origin = process.env.APP_ORIGIN || 'http://localhost:5173', devAuth = process.env.DEV_AUTH === '1' && process.env.NODE_ENV !== 'production', getRate = exchangeRate } = {}) {
+  return async (req, res) => {
     try {
       const url = new URL(req.url, 'http://localhost')
       if (req.method !== 'GET' && req.headers.origin !== origin) throw new AppError('Недопустимый источник запроса.', 403)
@@ -66,5 +66,9 @@ export function createApp(pool, { botToken = process.env.BOT_TOKEN, origin = pro
       if (!known) console.error('Ошибка API:', error.code ?? error.name)
       reply(res, known ? error.status : 500, { message: known ? error.message : 'Сервер недоступен. Повторите попытку.', code: known ? error.code : 'SERVER_ERROR' })
     }
-  })
+  }
+}
+
+export function createApp(pool, options = {}) {
+  return createServer(createHandler(pool, options))
 }
